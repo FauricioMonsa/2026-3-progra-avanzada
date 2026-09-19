@@ -1,0 +1,5 @@
+<Solution>
+	<Project Path="Quiniela.AppConsole\Quiniela.AppConsole.csproj" />
+	<Project Path="Quiniela.BusinessLogic\Quiniela.BusinessLogic.csproj" />
+	<Project Path="Quiniela.BusinessLogic.Tests\Quiniela.BusinessLogic.Tests.csproj" />
+</Solution>
