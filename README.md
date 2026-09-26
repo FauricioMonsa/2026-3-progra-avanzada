@@ -6,6 +6,7 @@ Aplicación de consola desarrollada con .NET 10 que compara el resultado real de
 
 - `Quiniela.BusinessLogic`: contiene `QuinielaScorer`, la clase responsable de calcular los puntos.
 - `Quiniela.AppConsole`: recibe los marcadores por línea de comandos y utiliza `QuinielaScorer`.
+- `Quiniela.Mvc`: interfaz web MVC para consultar el saludo y calcular los puntos.
 - `Quiniela.BusinessLogic.Tests`: pruebas unitarias xUnit para las reglas de puntuación.
 
 ## Uso
@@ -17,6 +18,14 @@ dotnet run --project .\Quiniela.AppConsole -- <realA> <realB> <usuarioA> <usuari
 ```
 
 Los cuatro valores deben ser marcadores enteros mayores o iguales que cero.
+
+Para ejecutar la interfaz web:
+
+```powershell
+dotnet run --project .\Quiniela.Mvc
+```
+
+Después, abre `/Quiniela/WebUnitTesting` en la URL indicada por ASP.NET Core.
 
 ## Puntuación
 
