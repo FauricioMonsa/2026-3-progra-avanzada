@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Quiniela.Model\Quiniela.Model.csproj" />
+  </ItemGroup>
+
 </Project>
