@@ -13,6 +13,8 @@ public sealed class TournamentCrudService : CrudService<Tournament>
 
     public Task<List<MatchDetails>> GetMatchesByTournamentAsync(
         int tournamentId,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default) =>
-        queryService.GetMatchesByTournamentAsync(tournamentId, cancellationToken);
+        queryService.GetMatchesByTournamentAsync(tournamentId, pageNumber, pageSize, cancellationToken);
 }

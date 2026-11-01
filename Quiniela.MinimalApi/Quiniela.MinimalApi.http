@@ -1,0 +1,14 @@
+@Quiniela.MinimalApi_HostAddress = http://localhost:5204
+
+GET {{Quiniela.MinimalApi_HostAddress}}/api/matches?pageNumber=1&pageSize=10
+Accept: application/json
+
+###
+
+GET {{Quiniela.MinimalApi_HostAddress}}/api/matches/by-team/10?startDate=2026-03-01&endDate=2026-03-31&pageNumber=1&pageSize=10
+Accept: application/json
+
+###
+
+GET {{Quiniela.MinimalApi_HostAddress}}/api/matches/by-tournament/1?pageNumber=1&pageSize=10
+Accept: application/json

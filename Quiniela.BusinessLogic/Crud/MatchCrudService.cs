@@ -15,20 +15,26 @@ public sealed class MatchCrudService : CrudService<Match>, IMatchQueryService
         int teamId,
         DateTime startDate,
         DateTime endDate,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default) =>
-        queryService.GetMatchesByTeamAsync(teamId, startDate, endDate, cancellationToken);
+        queryService.GetMatchesByTeamAsync(teamId, startDate, endDate, pageNumber, pageSize, cancellationToken);
 
     public Task<List<MatchDetails>> GetMatchesByTeamAsync(
         int teamId,
         DateOnly startDate,
         DateOnly endDate,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default) =>
-        queryService.GetMatchesByTeamAsync(teamId, startDate, endDate, cancellationToken);
+        queryService.GetMatchesByTeamAsync(teamId, startDate, endDate, pageNumber, pageSize, cancellationToken);
 
     public Task<List<MatchDetails>> GetMatchesByTournamentAsync(
         int tournamentId,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default) =>
-        queryService.GetMatchesByTournamentAsync(tournamentId, cancellationToken);
+        queryService.GetMatchesByTournamentAsync(tournamentId, pageNumber, pageSize, cancellationToken);
 
     public List<MatchDetails> GetMatchesByTeam(int teamId, DateTime startDate, DateTime endDate) =>
         queryService.GetMatchesByTeam(teamId, startDate, endDate);

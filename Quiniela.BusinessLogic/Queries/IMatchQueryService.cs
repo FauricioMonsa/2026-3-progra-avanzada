@@ -9,6 +9,8 @@ public interface IMatchQueryService
         int teamId,
         DateTime startDate,
         DateTime endDate,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -18,6 +20,8 @@ public interface IMatchQueryService
         int teamId,
         DateOnly startDate,
         DateOnly endDate,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -25,5 +29,7 @@ public interface IMatchQueryService
     /// </summary>
     Task<List<MatchDetails>> GetMatchesByTournamentAsync(
         int tournamentId,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default);
 }

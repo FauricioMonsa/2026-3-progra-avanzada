@@ -19,12 +19,16 @@ public class MatchQueryService : IMatchQueryService
         int teamId,
         DateTime startDate,
         DateTime endDate,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         if (startDate > endDate)
         {
             throw new ArgumentException("The start date must be less than or equal to the end date.", nameof(startDate));
         }
+
+        int pageOffset = GetPageOffset(pageNumber, pageSize);
 
         var rawList = await (
             from match in context.Matches.AsNoTracking()
@@ -50,7 +54,7 @@ public class MatchQueryService : IMatchQueryService
                 match.HomeScore,
                 match.AwayScore
             }
-        ).ToListAsync(cancellationToken);
+        ).Skip(pageOffset).Take(pageSize).ToListAsync(cancellationToken);
 
         return rawList.Select(m => new MatchDetails(
             m.TournamentName,
@@ -74,12 +78,16 @@ public class MatchQueryService : IMatchQueryService
         int teamId,
         DateOnly startDate,
         DateOnly endDate,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         if (startDate > endDate)
         {
             throw new ArgumentException("The start date must be less than or equal to the end date.", nameof(startDate));
         }
+
+        int pageOffset = GetPageOffset(pageNumber, pageSize);
 
         var rawList = await (
             from match in context.Matches.AsNoTracking()
@@ -105,7 +113,7 @@ public class MatchQueryService : IMatchQueryService
                 match.HomeScore,
                 match.AwayScore
             }
-        ).ToListAsync(cancellationToken);
+        ).Skip(pageOffset).Take(pageSize).ToListAsync(cancellationToken);
 
         return rawList.Select(m => new MatchDetails(
             m.TournamentName,
@@ -127,8 +135,12 @@ public class MatchQueryService : IMatchQueryService
     /// </summary>
     public async Task<List<MatchDetails>> GetMatchesByTournamentAsync(
         int tournamentId,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
+        int pageOffset = GetPageOffset(pageNumber, pageSize);
+
         var rawList = await (
             from match in context.Matches.AsNoTracking()
             where match.TournamentId == tournamentId
@@ -150,7 +162,7 @@ public class MatchQueryService : IMatchQueryService
                 match.HomeScore,
                 match.AwayScore
             }
-        ).ToListAsync(cancellationToken);
+        ).Skip(pageOffset).Take(pageSize).ToListAsync(cancellationToken);
 
         return rawList.Select(m => new MatchDetails(
             m.TournamentName,
@@ -175,8 +187,15 @@ public class MatchQueryService : IMatchQueryService
         GetMatchesByTournamentAsync(tournamentId).GetAwaiter().GetResult();
 
     public Task<List<MatchDetails>> GetTeamMatchesAsync(int teamId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default) =>
-        GetMatchesByTeamAsync(teamId, startDate, endDate, cancellationToken);
+        GetMatchesByTeamAsync(teamId, startDate, endDate, cancellationToken: cancellationToken);
 
     public Task<List<MatchDetails>> GetTournamentMatchesAsync(int tournamentId, CancellationToken cancellationToken = default) =>
-        GetMatchesByTournamentAsync(tournamentId, cancellationToken);
+        GetMatchesByTournamentAsync(tournamentId, cancellationToken: cancellationToken);
+
+    private static int GetPageOffset(int pageNumber, int pageSize)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageNumber, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
+        return checked((pageNumber - 1) * pageSize);
+    }
 }

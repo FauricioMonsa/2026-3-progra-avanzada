@@ -34,6 +34,30 @@ public class CrudServiceTests
     }
 
     [Fact]
+    public async Task Get_all_uses_default_page_size_and_supports_next_page()
+    {
+        using QuinielaDbContext context = CreateContext();
+        context.Users.AddRange(Enumerable.Range(1, 11).Reverse().Select(index => new User
+        {
+            UserId = index,
+            Username = $"user-{index}",
+            Email = $"user-{index}@example.com",
+            DisplayName = $"User {index}"
+        }));
+        await context.SaveChangesAsync();
+
+        var service = new UserCrudService(context);
+
+        List<User> firstPage = await service.GetAllAsync();
+        List<User> secondPage = await service.GetAllAsync(pageNumber: 2);
+
+        Assert.Equal(10, firstPage.Count);
+        Assert.Equal(1, firstPage[0].UserId);
+        Assert.Single(secondPage);
+        Assert.Equal(11, secondPage[0].UserId);
+    }
+
+    [Fact]
     public async Task Tournament_participant_service_queries_composite_primary_key()
     {
         using QuinielaDbContext context = CreateContext();

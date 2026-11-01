@@ -11,6 +11,8 @@ Aplicación desarrollada con .NET 10 y Entity Framework Core que gestiona pronó
   - Servicios CRUD (`CrudService<T>`): operaciones genéricas de inserción, actualización, eliminación y consulta por llave primaria para las entidades del modelo.
   - Consultas de partidos (`MatchQueryService`, `IMatchQueryService`): consultas especializadas de partidos ordenadas cronológicamente ascendente.
 - `Quiniela.AppConsole`: aplicación de consola para interactuar con `QuinielaScorer`.
+- `Quiniela.MinimalApi`: API REST con Minimal APIs (`MapGet`, `MapPost`, `MapPut`, `MapDelete`).
+- `Quiniela.Api`: API REST clásica con controladores y acciones MVC.
 - `Quiniela.Mvc`: interfaz web MVC para calcular puntos e interactuar con el sistema.
 - `Quiniela.BusinessLogic.Tests`: pruebas unitarias con xUnit para las reglas de puntuación, los servicios CRUD y las consultas de partidos.
 
@@ -19,13 +21,13 @@ Aplicación desarrollada con .NET 10 y Entity Framework Core que gestiona pronó
 El proyecto `Quiniela.BusinessLogic` incorpora consultas especializadas disponibles a través de `MatchQueryService` (e integradas en `MatchCrudService`, `TeamCrudService` y `TournamentCrudService`):
 
 1. **Partidos jugados por un equipo en un intervalo de tiempo**:
-   - Método: `GetMatchesByTeamAsync(teamId, startDate, endDate)` (incluye sobrecarga para `DateOnly`).
-   - Retorna todos los partidos donde el equipo participó (ya sea como local o como visitante) dentro del rango de fechas especificado.
+   - Método: `GetMatchesByTeamAsync(teamId, startDate, endDate, pageNumber, pageSize)` (incluye sobrecarga para `DateOnly`).
+   - Retorna la página solicitada de partidos donde el equipo participó (ya sea como local o como visitante) dentro del rango de fechas especificado. `pageNumber` empieza en 1 y `pageSize` vale 10 por defecto.
    - Ordenados cronológicamente en orden ascendente por fecha y hora de inicio (`KickoffAt`).
 
 2. **Partidos de un torneo**:
-   - Método: `GetMatchesByTournamentAsync(tournamentId)`.
-   - Retorna todos los partidos correspondientes al torneo indicado.
+   - Método: `GetMatchesByTournamentAsync(tournamentId, pageNumber, pageSize)`.
+   - Retorna la página solicitada de partidos correspondientes al torneo indicado. `pageNumber` empieza en 1 y `pageSize` vale 10 por defecto.
    - Ordenados cronológicamente en orden ascendente por fecha y hora de inicio (`KickoffAt`).
 
 ### Tipo de Retorno Unificado (`MatchDetails`)
@@ -61,6 +63,49 @@ dotnet run --project .\Quiniela.Mvc
 ```
 
 Después, abre `/Quiniela/WebUnitTesting` en la URL indicada por ASP.NET Core.
+
+### APIs REST
+
+Ambas implementaciones exponen los mismos recursos y contratos. La conexión se guarda en User Secrets, no en archivos versionados. Ajusta la contraseña `postgres` si tu instancia local usa otra:
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:QuinielaDb" "Host=localhost;Port=5432;Database=quiniela;Username=postgres;Password=postgres;SSL Mode=Disable" --project .\Quiniela.MinimalApi\Quiniela.MinimalApi.csproj
+dotnet user-secrets set "ConnectionStrings:QuinielaDb" "Host=localhost;Port=5432;Database=quiniela;Username=postgres;Password=postgres;SSL Mode=Disable" --project .\Quiniela.Api\Quiniela.Api.csproj
+```
+
+El repositorio no incluye migraciones de EF Core. Para inicializar una base local nueva, con PostgreSQL y `psql` instalados:
+
+```powershell
+createdb -h localhost -p 5432 -U postgres -O postgres quiniela
+psql -h localhost -p 5432 -U postgres -d quiniela -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS user_08 AUTHORIZATION postgres; SET search_path TO user_08, public;' -f .\Quiniela.SqlModel.Postgres\tables.sql
+```
+
+El script crea las tablas, tipos y funciones en el esquema `user_08`, que es el esquema configurado en `QuinielaDbContext`.
+
+Ejecuta una o ambas APIs:
+
+```powershell
+dotnet run --project .\Quiniela.MinimalApi
+```
+
+La Minimal API escucha en `http://localhost:5204`. Para iniciar la versión clásica en otra terminal:
+
+```powershell
+dotnet run --project .\Quiniela.Api
+```
+
+La API clásica escucha en `http://localhost:5124`; ambos procesos pueden ejecutarse a la vez.
+
+Los recursos exponen operaciones `GET` paginadas, `GET` por clave, `POST`, `PUT` y `DELETE`:
+
+- `/api/forecasts`
+- `/api/matches`
+- `/api/teams`
+- `/api/tournaments`
+- `/api/tournament-participants` (la clave compuesta se indica como `/{tournamentId}/{teamId}`)
+- `/api/users`
+
+Los listados aceptan `pageNumber` y `pageSize`, con valores predeterminados `1` y `10`. Las consultas personalizadas están disponibles en `GET /api/matches/by-team/{teamId}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` y `GET /api/matches/by-tournament/{tournamentId}`; ambas aceptan los mismos parámetros de paginación.
 
 ## Puntuación
 

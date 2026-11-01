@@ -248,6 +248,25 @@ public class MatchQueryTests
     }
 
     [Fact]
+    public async Task Match_queries_return_requested_pages_in_chronological_order()
+    {
+        using QuinielaDbContext context = CreateContext();
+        await SeedSampleDataAsync(context);
+        var queryService = new MatchQueryService(context);
+
+        DateTime start = new(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime end = new(2026, 3, 31, 23, 59, 59, DateTimeKind.Utc);
+
+        List<MatchDetails> teamPage = await queryService.GetMatchesByTeamAsync(
+            10, start, end, pageNumber: 2, pageSize: 2);
+        List<MatchDetails> tournamentPage = await queryService.GetMatchesByTournamentAsync(
+            1, pageNumber: 2, pageSize: 2);
+
+        Assert.Collection(teamPage, match => Assert.Equal(103, match.MatchId));
+        Assert.Collection(tournamentPage, match => Assert.Equal(102, match.MatchId));
+    }
+
+    [Fact]
     public async Task BothQueries_ReturnSameType_MatchDetails()
     {
         using QuinielaDbContext context = CreateContext();
@@ -283,5 +302,17 @@ public class MatchQueryTests
 
         Assert.Equal(3, query1Result.Count);
         Assert.Equal(3, query2Result.Count);
+
+        List<MatchDetails> teamPage = await crudService.GetMatchesByTeamAsync(
+            10,
+            new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 3, 31, 23, 59, 59, DateTimeKind.Utc),
+            pageNumber: 2,
+            pageSize: 2);
+        List<MatchDetails> tournamentPage = await crudService.GetMatchesByTournamentAsync(
+            1, pageNumber: 2, pageSize: 2);
+
+        Assert.Collection(teamPage, match => Assert.Equal(103, match.MatchId));
+        Assert.Collection(tournamentPage, match => Assert.Equal(102, match.MatchId));
     }
 }

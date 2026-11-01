@@ -10,7 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Quiniela.BusinessLogic\Quiniela.BusinessLogic.csproj" />
     <ProjectReference Include="..\Quiniela.Model\Quiniela.Model.csproj" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

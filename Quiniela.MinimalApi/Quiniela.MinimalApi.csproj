@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>6c2217e3-1b9a-4a63-a5d4-c1786fd294f0</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Quiniela.BusinessLogic\Quiniela.BusinessLogic.csproj" />
+    <ProjectReference Include="..\Quiniela.Model\Quiniela.Model.csproj" />
+  </ItemGroup>
+
+</Project>
