@@ -1,0 +1,44 @@
+@model MatchEditViewModel
+@{
+    ViewData["Title"] = "Edit match";
+}
+
+<main class="form-page">
+    <p class="eyebrow">Match management</p>
+    <h1>Advance match status</h1>
+    <p class="intro">Match identity and kickoff are fixed. A scheduled match can go live; a live match can be completed with its final score and stats.</p>
+    <form asp-action="Edit" asp-route-id="@Model.MatchId" method="post">
+        <input asp-for="MatchId" type="hidden" />
+        <input asp-for="CurrentStatus" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="score-grid">
+            <label>Current status</label>
+            <span>@Model.CurrentStatus</span>
+
+            <label asp-for="NewStatus"></label>
+            <select asp-for="NewStatus" asp-items="Model.StatusOptions"></select>
+            <span asp-validation-for="NewStatus" class="validation-message"></span>
+
+            @if (Model.CurrentStatus == MatchStatus.Live)
+            {
+                <label asp-for="HomeScore"></label>
+                <input asp-for="HomeScore" type="number" min="0" />
+                <span asp-validation-for="HomeScore" class="validation-message"></span>
+
+                <label asp-for="AwayScore"></label>
+                <input asp-for="AwayScore" type="number" min="0" />
+                <span asp-validation-for="AwayScore" class="validation-message"></span>
+
+                <label asp-for="Stats"></label>
+                <textarea asp-for="Stats" rows="12" spellcheck="false"></textarea>
+                <span asp-validation-for="Stats" class="validation-message"></span>
+            }
+        </div>
+        <button class="button" type="submit">Save</button>
+        <a class="text-link" asp-action="Details" asp-route-id="@Model.MatchId">Cancel</a>
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

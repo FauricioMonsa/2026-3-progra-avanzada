@@ -12,7 +12,10 @@ string connectionString = builder.Configuration.GetConnectionString("QuinielaDb"
 
 builder.Services.AddDbContext<QuinielaDbContext>(options => options.UseNpgsql(
 	connectionString,
-	npgsql => npgsql.MapEnum<SportType>("sport_type", "user_08")));
+	npgsql => npgsql
+		.MapEnum<MatchKind>("match_kind", "user_08")
+		.MapEnum<MatchStatus>("match_status", "user_08")
+		.MapEnum<SportType>("sport_type", "user_08")));
 builder.Services.AddScoped<ForecastCrudService>();
 builder.Services.AddScoped<MatchCrudService>();
 builder.Services.AddScoped<TeamCrudService>();

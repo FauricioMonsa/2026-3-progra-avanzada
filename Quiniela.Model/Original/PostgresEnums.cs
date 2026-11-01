@@ -20,5 +20,6 @@ public enum SportType
     Baseball,
     Volleyball,
     Rugby,
-    Hockey
+    Hockey,
+    AmericanFootball
 }

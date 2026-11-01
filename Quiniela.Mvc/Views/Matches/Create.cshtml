@@ -1,0 +1,50 @@
+@model MatchFormViewModel
+@{
+    ViewData["Title"] = "Insert match";
+}
+
+<main class="form-page">
+    <p class="eyebrow">Match management</p>
+    <h1>Insert match</h1>
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="score-grid">
+            <label asp-for="Kind"></label>
+            <select asp-for="Kind" asp-items="Html.GetEnumSelectList<MatchKind>()"></select>
+
+            <label asp-for="Sport"></label>
+            <select asp-for="Sport" asp-items="Html.GetEnumSelectList<SportType>()"></select>
+
+            <label asp-for="TournamentId"></label>
+            <select asp-for="TournamentId" asp-items="Model.TournamentOptions">
+                <option value="">No tournament</option>
+            </select>
+
+            <label asp-for="RoundName"></label>
+            <input asp-for="RoundName" />
+
+            <label asp-for="HomeTeamId"></label>
+            <select asp-for="HomeTeamId" asp-items="Model.TeamOptions">
+                <option value="">Select a home team</option>
+            </select>
+            <span asp-validation-for="HomeTeamId" class="validation-message"></span>
+
+            <label asp-for="AwayTeamId"></label>
+            <select asp-for="AwayTeamId" asp-items="Model.TeamOptions">
+                <option value="">Select an away team</option>
+            </select>
+            <span asp-validation-for="AwayTeamId" class="validation-message"></span>
+
+            <label for="KickoffAt">Kickoff (UTC)</label>
+            <input asp-for="KickoffAt" type="datetime-local" />
+            <span asp-validation-for="KickoffAt" class="validation-message"></span>
+        </div>
+        <p class="form-hint">New matches are scheduled without a score. The database accepts kickoffs from now through the next two hours.</p>
+        <button class="button" type="submit">Insert</button>
+        <a class="text-link" asp-action="Index">Cancel</a>
+    </form>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

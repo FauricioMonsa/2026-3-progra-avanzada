@@ -59,10 +59,11 @@ Los cuatro valores deben ser marcadores enteros mayores o iguales que cero.
 Para ejecutar la interfaz web:
 
 ```powershell
+dotnet user-secrets set "ConnectionStrings:QuinielaDb" "Host=localhost;Port=5432;Database=quiniela;Username=postgres;******;SSL Mode=Disable" --project .\Quiniela.Mvc\Quiniela.Mvc.csproj
 dotnet run --project .\Quiniela.Mvc
 ```
 
-Después, abre `/Quiniela/WebUnitTesting` en la URL indicada por ASP.NET Core.
+La aplicación MVC abre en `http://localhost:5205`. El listado `/Matches` muestra partidos paginados, filtros por torneo o equipo, pronósticos por partido, y acciones para consultar JSON, insertar, editar, eliminar y ver detalles. Editar avanza un partido programado a en vivo o uno en vivo a finalizado, de acuerdo con las reglas de la base de datos. Para calcular puntos, abre `/Quiniela/WebUnitTesting`.
 
 ### APIs REST
 

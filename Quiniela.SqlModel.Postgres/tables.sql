@@ -10,12 +10,15 @@ BEGIN
         'baseball',
         'volleyball',
         'rugby',
-        'hockey'
+        'hockey',
+        'american_football'
     );
 EXCEPTION
     WHEN duplicate_object THEN NULL;
 END;
 $$;
+
+ALTER TYPE user_08.sport_type ADD VALUE IF NOT EXISTS 'american_football';
 
 DO $$
 BEGIN

@@ -1,0 +1,60 @@
+@model MatchMasterViewModel
+@{
+    ViewData["Title"] = $"Match {Model.MatchId}";
+}
+
+<main>
+    <p class="eyebrow">Match details</p>
+    <h1>Match @Model.MatchId</h1>
+    <dl class="match-details">
+        <dt>Tournament</dt><dd>@(Model.TournamentName ?? "Friendly")</dd>
+        <dt>Match kind</dt><dd>@Model.Kind</dd>
+        <dt>Sport</dt><dd>@Model.SportName</dd>
+        <dt>Home team</dt><dd>@Model.HomeTeamName</dd>
+        <dt>Away team</dt><dd>@Model.AwayTeamName</dd>
+        <dt>Played at</dt><dd>@Model.PlayedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+        <dt>Status</dt><dd>@Model.Status</dd>
+        <dt>Score</dt><dd>@(Model.HomeScore?.ToString() ?? "—") – @(Model.AwayScore?.ToString() ?? "—")</dd>
+        <dt>Stats</dt>
+        <dd><a asp-action="Stats" asp-route-matchId="@Model.MatchId" target="_blank" rel="noopener noreferrer">Open JSON in a new window</a></dd>
+    </dl>
+
+    <h2>Forecasts</h2>
+    @if (Model.Forecasts.Count == 0)
+    {
+        <p>No forecasts have been submitted.</p>
+    }
+    else
+    {
+        <div class="table-scroll">
+            <table class="forecast-table">
+                <thead>
+                    <tr>
+                        <th>User id</th>
+                        <th>Predicted home score</th>
+                        <th>Predicted away score</th>
+                        <th>Submitted at</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (ForecastDetailViewModel forecast in Model.Forecasts)
+                {
+                    <tr>
+                        <td>@forecast.UserId</td>
+                        <td>@forecast.PredictedHomeScore</td>
+                        <td>@forecast.PredictedAwayScore</td>
+                        <td>@forecast.SubmittedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    <p>
+        @if (Model.Status != MatchStatus.Finished)
+        {
+            <a class="button" asp-action="Edit" asp-route-id="@Model.MatchId">Edit</a>
+        }
+        <a class="text-link" asp-action="Index">Back to matches</a>
+    </p>
+</main>

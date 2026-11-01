@@ -1,0 +1,20 @@
+@model MatchMasterViewModel
+@{
+    ViewData["Title"] = "Delete match";
+}
+
+<main class="form-page">
+    <p class="eyebrow">Match management</p>
+    <h1>Delete match @Model.MatchId?</h1>
+    <p class="intro">This also removes the forecasts for the match.</p>
+    <dl class="match-details">
+        <dt>Tournament</dt><dd>@(Model.TournamentName ?? "Friendly")</dd>
+        <dt>Teams</dt><dd>@Model.HomeTeamName – @Model.AwayTeamName</dd>
+        <dt>Played at</dt><dd>@Model.PlayedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+        <dt>Status</dt><dd>@Model.Status</dd>
+    </dl>
+    <form asp-action="Delete" asp-route-id="@Model.MatchId" method="post">
+        <button class="button danger" type="submit">Delete match and forecasts</button>
+        <a class="text-link" asp-action="Index">Cancel</a>
+    </form>
+</main>

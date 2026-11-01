@@ -10,6 +10,7 @@ public record MatchDetails
     public string? TournamentName { get; init; }
     public short? TournamentSeason { get; init; }
     public string? TournamentSportName { get; init; }
+    public string SportName { get; init; } = string.Empty;
     public int MatchId { get; init; }
     public MatchKind MatchKind { get; init; }
     public string HomeTeamName { get; init; } = string.Empty;

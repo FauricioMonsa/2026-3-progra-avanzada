@@ -30,7 +30,7 @@ public partial class QuinielaDbContext : DbContext
         modelBuilder
             .HasPostgresEnum("user_08", "match_kind", new[] { "competition", "friendly" })
             .HasPostgresEnum("user_08", "match_status", new[] { "scheduled", "live", "finished" })
-            .HasPostgresEnum("user_08", "sport_type", new[] { "soccer", "basketball", "baseball", "volleyball", "rugby", "hockey" });
+            .HasPostgresEnum("user_08", "sport_type", new[] { "soccer", "basketball", "baseball", "volleyball", "rugby", "hockey", "american_football" });
 
         modelBuilder.Entity<Forecast>(entity =>
         {

@@ -1,0 +1,163 @@
+@model MatchesIndexViewModel
+@{
+    ViewData["Title"] = "Matches";
+}
+
+<main>
+    <p class="eyebrow">Tournament schedule</p>
+    <h1>Matches</h1>
+    <p class="intro">Browse matches and their forecasts, or manage the match record.</p>
+
+    <p><a class="button" asp-action="Create">Insert match</a></p>
+
+    <form asp-action="Index" method="get" class="match-filter">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="filter-grid">
+            <div>
+                <label for="tournamentId">Tournament</label>
+                <select id="tournamentId" name="tournamentId">
+                    <option value="">All tournaments</option>
+                    @foreach (SelectListItem option in Model.TournamentOptions)
+                    {
+                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label for="teamId">Team</label>
+                <select id="teamId" name="teamId">
+                    <option value="">All teams</option>
+                    @foreach (SelectListItem option in Model.TeamOptions)
+                    {
+                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label for="pageSize">Page size</label>
+                <select id="pageSize" name="pageSize">
+                    @foreach (int size in new[] { 5, 10, 20, 50 })
+                    {
+                        <option value="@size" selected="@(Model.PageSize == size)">@size</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <button class="button" type="submit">Apply filters</button>
+    </form>
+
+    <p class="result-count">@Model.TotalCount match(es) · Page @Model.PageNumber</p>
+
+    @if (Model.Matches.Count == 0)
+    {
+        <p>No matches were found for the selected filters.</p>
+    }
+    else
+    {
+        <div class="table-scroll">
+            <table class="match-table">
+                <thead>
+                    <tr>
+                        <th>Match id</th>
+                        <th>Tournament</th>
+                        <th>Kind</th>
+                        <th>Sport</th>
+                        <th>Home team</th>
+                        <th>Away team</th>
+                        <th>Played at</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Stats</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (MatchMasterViewModel match in Model.Matches)
+                {
+                    <tr>
+                        <td>@match.MatchId</td>
+                        <td>@(match.TournamentName ?? "Friendly")</td>
+                        <td>@match.Kind</td>
+                        <td>@match.SportName</td>
+                        <td>@match.HomeTeamName</td>
+                        <td>@match.AwayTeamName</td>
+                        <td>@match.PlayedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@match.Status</td>
+                        <td>@(match.HomeScore?.ToString() ?? "—") – @(match.AwayScore?.ToString() ?? "—")</td>
+                        <td>
+                            <a asp-action="Stats"
+                               asp-route-matchId="@match.MatchId"
+                               target="_blank"
+                               rel="noopener noreferrer">Open JSON</a>
+                        </td>
+                        <td class="action-links">
+                            <a asp-action="Details" asp-route-id="@match.MatchId">Details</a>
+                            @if (match.Status != MatchStatus.Finished)
+                            {
+                                <a asp-action="Edit" asp-route-id="@match.MatchId">Edit</a>
+                            }
+                            <a asp-action="Delete" asp-route-id="@match.MatchId">Delete</a>
+                        </td>
+                    </tr>
+                    <tr class="forecast-row">
+                        <td colspan="11">
+                            <details>
+                                <summary>Forecasts (@match.Forecasts.Count)</summary>
+                                @if (match.Forecasts.Count == 0)
+                                {
+                                    <p>No forecasts have been submitted.</p>
+                                }
+                                else
+                                {
+                                    <div class="table-scroll">
+                                        <table class="forecast-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>User id</th>
+                                                    <th>Predicted home score</th>
+                                                    <th>Predicted away score</th>
+                                                    <th>Submitted at</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach (ForecastDetailViewModel forecast in match.Forecasts)
+                                            {
+                                                <tr>
+                                                    <td>@forecast.UserId</td>
+                                                    <td>@forecast.PredictedHomeScore</td>
+                                                    <td>@forecast.PredictedAwayScore</td>
+                                                    <td>@forecast.SubmittedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                                </tr>
+                                            }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                            </details>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <nav class="pager" aria-label="Match pages">
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-action="Index"
+               asp-route-tournamentId="@Model.TournamentId"
+               asp-route-teamId="@Model.TeamId"
+               asp-route-pageNumber="@(Model.PageNumber - 1)"
+               asp-route-pageSize="@Model.PageSize">Previous</a>
+        }
+        @if (Model.HasNextPage)
+        {
+            <a asp-action="Index"
+               asp-route-tournamentId="@Model.TournamentId"
+               asp-route-teamId="@Model.TeamId"
+               asp-route-pageNumber="@(Model.PageNumber + 1)"
+               asp-route-pageSize="@Model.PageSize">Next</a>
+        }
+    </nav>
+</main>

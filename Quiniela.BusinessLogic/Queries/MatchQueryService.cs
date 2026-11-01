@@ -47,6 +47,7 @@ public class MatchQueryService : IMatchQueryService
                 TournamentSport = tournament != null ? (SportType?)tournament.Sport : null,
                 match.MatchId,
                 match.Kind,
+                match.Sport,
                 HomeTeamName = homeTeam.Name,
                 AwayTeamName = awayTeam.Name,
                 match.KickoffAt,
@@ -68,7 +69,7 @@ public class MatchQueryService : IMatchQueryService
             m.Status.ToString(),
             m.HomeScore,
             m.AwayScore
-        )).ToList();
+        ) { SportName = m.Sport.ToString() }).ToList();
     }
 
     /// <summary>
@@ -106,6 +107,7 @@ public class MatchQueryService : IMatchQueryService
                 TournamentSport = tournament != null ? (SportType?)tournament.Sport : null,
                 match.MatchId,
                 match.Kind,
+                match.Sport,
                 HomeTeamName = homeTeam.Name,
                 AwayTeamName = awayTeam.Name,
                 match.KickoffAt,
@@ -127,7 +129,7 @@ public class MatchQueryService : IMatchQueryService
             m.Status.ToString(),
             m.HomeScore,
             m.AwayScore
-        )).ToList();
+        ) { SportName = m.Sport.ToString() }).ToList();
     }
 
     /// <summary>
@@ -155,6 +157,7 @@ public class MatchQueryService : IMatchQueryService
                 TournamentSport = (SportType?)tournament.Sport,
                 match.MatchId,
                 match.Kind,
+                match.Sport,
                 HomeTeamName = homeTeam.Name,
                 AwayTeamName = awayTeam.Name,
                 match.KickoffAt,
@@ -176,7 +179,7 @@ public class MatchQueryService : IMatchQueryService
             m.Status.ToString(),
             m.HomeScore,
             m.AwayScore
-        )).ToList();
+        ) { SportName = m.Sport.ToString() }).ToList();
     }
 
     // Synchronous and alias convenience methods
