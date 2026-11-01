@@ -1,0 +1,116 @@
+@model MatchesJsIndexViewModel
+@{
+    ViewData["Title"] = "Matches JavaScript";
+}
+
+<main class="matches-js"
+      data-matches-url="@Url.Action("Matches", "MatchesJs")"
+      data-forecasts-url="@Url.Action("Forecasts", "MatchesJs")">
+    <p class="eyebrow">Live data · JavaScript refresh</p>
+    <h1>Match center</h1>
+    <p class="intro">Choose a match in the upper grid to load its forecasts in the lower grid.</p>
+
+    <section class="grid-panel" aria-labelledby="matches-heading">
+        <div class="grid-heading">
+            <div>
+                <p class="eyebrow">Master</p>
+                <h2 id="matches-heading">Matches</h2>
+            </div>
+            <p id="matches-count" class="result-count" aria-live="polite"></p>
+        </div>
+
+        <form id="match-filters" class="js-filter-form">
+            <div class="filter-grid">
+                <div>
+                    <label for="tournament-filter">Tournament</label>
+                    <select id="tournament-filter" name="tournamentId">
+                        <option value="">All tournaments</option>
+                        @foreach (SelectListItem option in Model.TournamentOptions)
+                        {
+                            <option value="@option.Value">@option.Text</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="team-filter">Team</label>
+                    <select id="team-filter" name="teamId">
+                        <option value="">All teams</option>
+                        @foreach (SelectListItem option in Model.TeamOptions)
+                        {
+                            <option value="@option.Value">@option.Text</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="page-size">Rows per page</label>
+                    <select id="page-size" name="pageSize">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </div>
+            <button class="button" type="submit">Refresh matches</button>
+        </form>
+
+        <p id="matches-message" class="grid-message" role="status" aria-live="polite"></p>
+        <div class="table-scroll">
+            <table class="match-table js-match-table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Tournament</th>
+                        <th>Kind</th>
+                        <th>Sport</th>
+                        <th>Home</th>
+                        <th>Away</th>
+                        <th>Kickoff</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="matches-grid">
+                    <tr><td colspan="9">Loading matches…</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="pager" aria-label="Match pages">
+            <button id="previous-page" type="button" class="text-button" disabled>Previous</button>
+            <span id="page-indicator"></span>
+            <button id="next-page" type="button" class="text-button" disabled>Next</button>
+        </nav>
+    </section>
+
+    <section class="grid-panel detail-panel" aria-labelledby="forecasts-heading">
+        <div class="grid-heading">
+            <div>
+                <p class="eyebrow">Detail</p>
+                <h2 id="forecasts-heading">Forecasts</h2>
+            </div>
+            <p id="selected-match" class="result-count">Select a match above.</p>
+        </div>
+        <p id="forecasts-message" class="grid-message" role="status" aria-live="polite">
+            Select a match to view its forecasts.
+        </p>
+        <div class="table-scroll">
+            <table class="forecast-table">
+                <thead>
+                    <tr>
+                        <th>User id</th>
+                        <th>Predicted home</th>
+                        <th>Predicted away</th>
+                        <th>Submitted at</th>
+                    </tr>
+                </thead>
+                <tbody id="forecasts-grid">
+                    <tr><td colspan="4">No match selected.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="~/js/matches-js.js" asp-append-version="true"></script>
+}

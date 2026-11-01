@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Quiniela.BusinessLogic;
 using Quiniela.Model;
@@ -12,6 +13,55 @@ public sealed class MatchesController : CrudController<Match>
     public MatchesController(MatchCrudService crudService) : base(crudService)
     {
         matchService = crudService;
+    }
+
+    [HttpGet("details")]
+    public async Task<ActionResult<List<MatchDetails>>> GetDetails(
+        [FromQuery] int? tournamentId,
+        [FromQuery] int? teamId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        if (pageNumber < 1 || pageSize < 1)
+        {
+            return BadRequest("Page number and page size must be greater than zero.");
+        }
+
+        try
+        {
+            var page = await matchService.GetMatchDetailsPageAsync(
+                tournamentId, teamId, pageNumber, pageSize, cancellationToken: cancellationToken);
+            Response.Headers["X-Total-Count"] = page.TotalCount.ToString();
+            return Ok(page.Matches);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+        catch (OverflowException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpGet("details/{matchId:int}")]
+    public async Task<ActionResult<MatchDetails>> GetDetailsById(
+        int matchId,
+        CancellationToken cancellationToken)
+    {
+        var page = await matchService.GetMatchDetailsPageAsync(
+            null, null, 1, 1, matchId, cancellationToken);
+        return page.Matches.Count == 0 ? NotFound() : Ok(page.Matches[0]);
+    }
+
+    [HttpGet("stats/{matchId:int}")]
+    public async Task<IActionResult> GetStats(int matchId, CancellationToken cancellationToken)
+    {
+        string? stats = await matchService.GetMatchStatsAsync(matchId, cancellationToken);
+        return stats is null
+            ? NotFound()
+            : Content(stats, "application/json; charset=utf-8");
     }
 
     [HttpGet("{matchId:int}")]
@@ -31,8 +81,19 @@ public sealed class MatchesController : CrudController<Match>
             cancellationToken);
 
     [HttpDelete("{matchId:int}")]
-    public Task<IActionResult> Delete(int matchId, CancellationToken cancellationToken) =>
-        DeleteAsync(new object[] { matchId }, cancellationToken);
+    public async Task<IActionResult> Delete(int matchId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await matchService.DeleteWithDependentsAsync(matchId, cancellationToken)
+                ? NoContent()
+                : NotFound();
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict("The match could not be deleted because related data still references it.");
+        }
+    }
 
     [HttpGet("by-team/{teamId:int}")]
     public async Task<ActionResult<List<MatchDetails>>> GetByTeam(

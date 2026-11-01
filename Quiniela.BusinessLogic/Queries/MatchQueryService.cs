@@ -12,6 +12,83 @@ public class MatchQueryService : IMatchQueryService
         this.context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
+    public async Task<(List<MatchDetails> Matches, int TotalCount)> GetMatchDetailsPageAsync(
+        int? tournamentId,
+        int? teamId,
+        int pageNumber,
+        int pageSize,
+        int? matchId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (tournamentId.HasValue && teamId.HasValue)
+        {
+            throw new ArgumentException("Choose either a tournament or a team filter, not both.");
+        }
+
+        int pageOffset = GetPageOffset(pageNumber, pageSize);
+        IQueryable<Match> matchesQuery = context.Matches.AsNoTracking();
+
+        if (matchId.HasValue)
+        {
+            matchesQuery = matchesQuery.Where(match => match.MatchId == matchId.Value);
+        }
+        else if (tournamentId.HasValue)
+        {
+            matchesQuery = matchesQuery.Where(match => match.TournamentId == tournamentId.Value);
+        }
+        else if (teamId.HasValue)
+        {
+            matchesQuery = matchesQuery.Where(match =>
+                match.HomeTeamId == teamId.Value || match.AwayTeamId == teamId.Value);
+        }
+
+        int totalCount = await matchesQuery.CountAsync(cancellationToken);
+        var matches = await (
+            from match in matchesQuery
+            join homeTeam in context.Teams.AsNoTracking() on match.HomeTeamId equals homeTeam.TeamId
+            join awayTeam in context.Teams.AsNoTracking() on match.AwayTeamId equals awayTeam.TeamId
+            join tournament in context.Tournaments.AsNoTracking()
+                on match.TournamentId equals (int?)tournament.TournamentId into tournamentGroup
+            from tournament in tournamentGroup.DefaultIfEmpty()
+            orderby match.KickoffAt, match.MatchId
+            select new
+            {
+                TournamentName = tournament == null ? null : tournament.Name,
+                TournamentSeason = tournament == null ? (short?)null : tournament.SeasonYear,
+                TournamentSport = tournament == null ? (SportType?)null : tournament.Sport,
+                match.MatchId,
+                match.Kind,
+                match.Sport,
+                HomeTeamName = homeTeam.Name,
+                AwayTeamName = awayTeam.Name,
+                match.KickoffAt,
+                match.Status,
+                match.HomeScore,
+                match.AwayScore
+            })
+            .Skip(pageOffset)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        List<MatchDetails> details = matches.Select(match => new MatchDetails(
+            match.TournamentName,
+            match.TournamentSeason,
+            match.TournamentSport?.ToString(),
+            match.MatchId,
+            match.Kind,
+            match.HomeTeamName,
+            match.AwayTeamName,
+            match.KickoffAt,
+            match.Status.ToString(),
+            match.HomeScore,
+            match.AwayScore)
+        {
+            SportName = match.Sport.ToString()
+        }).ToList();
+
+        return (details, totalCount);
+    }
+
     /// <summary>
     /// Query 1: List of all matches a team has played on a time interval, sorted chronologically ascending.
     /// </summary>

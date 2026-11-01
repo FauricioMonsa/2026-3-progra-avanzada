@@ -315,4 +315,35 @@ public class MatchQueryTests
         Assert.Collection(teamPage, match => Assert.Equal(103, match.MatchId));
         Assert.Collection(tournamentPage, match => Assert.Equal(102, match.MatchId));
     }
+
+    [Fact]
+    public async Task Query3_PagesDetailedMatchesAndReportsFilteredCounts()
+    {
+        using QuinielaDbContext context = CreateContext();
+        await SeedSampleDataAsync(context);
+        var queryService = new MatchQueryService(context);
+
+        var allMatches = await queryService.GetMatchDetailsPageAsync(null, null, 2, 2);
+        Assert.Equal(5, allMatches.TotalCount);
+        Assert.Equal([102, 103], allMatches.Matches.Select(match => match.MatchId));
+
+        var tournamentMatches = await queryService.GetMatchDetailsPageAsync(1, null, 1, 10);
+        Assert.Equal(3, tournamentMatches.TotalCount);
+        Assert.Equal([101, 105, 102], tournamentMatches.Matches.Select(match => match.MatchId));
+        Assert.Equal("Copa Apertura 2026", tournamentMatches.Matches[0].TournamentName);
+
+        var teamMatches = await queryService.GetMatchDetailsPageAsync(null, 10, 1, 10);
+        Assert.Equal(4, teamMatches.TotalCount);
+        Assert.Equal([101, 102, 103, 104], teamMatches.Matches.Select(match => match.MatchId));
+    }
+
+    [Fact]
+    public async Task Query3_RejectsSimultaneousTournamentAndTeamFilters()
+    {
+        using QuinielaDbContext context = CreateContext();
+        var queryService = new MatchQueryService(context);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            queryService.GetMatchDetailsPageAsync(1, 10, 1, 10));
+    }
 }

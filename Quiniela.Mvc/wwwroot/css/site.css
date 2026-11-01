@@ -77,6 +77,24 @@ textarea { font-family: Consolas, monospace; }
 .danger { background: #a73d25; }
 .site-header nav { display: flex; gap: 18px; }
 
+.matches-js h1 { font-size: clamp(2.8rem, 6vw, 4.8rem); }
+.grid-panel { margin: 28px 0; padding: 24px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--card) 92%, transparent); box-shadow: 0 10px 28px #18211f0c; }
+.grid-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+.grid-heading .eyebrow { margin-bottom: 8px; }
+.grid-heading h2 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.5rem); }
+.grid-heading .result-count { margin: 0 0 4px; text-align: right; }
+.js-filter-form { margin-top: 20px; padding: 18px; }
+.js-filter-form .button { margin-top: 16px; }
+.grid-message { min-height: 1.4em; margin: 16px 0 0; color: var(--muted); font: .9rem 'Trebuchet MS', sans-serif; }
+.js-match-table tbody tr[data-match-id] { cursor: pointer; }
+.js-match-table tbody tr[data-match-id]:hover { background: #f0eee4; }
+.js-match-table tbody tr[data-match-id][aria-selected="true"] { outline: 2px solid var(--accent); outline-offset: -2px; background: #f4e3da; }
+.js-match-table tbody tr[data-match-id]:focus-visible { outline: 2px solid var(--accent-dark); outline-offset: -2px; }
+.detail-panel { margin-top: 34px; }
+.text-button { border: 0; padding: 8px 0; color: var(--accent-dark); background: transparent; font: 700 .9rem 'Trebuchet MS', sans-serif; cursor: pointer; }
+.text-button:disabled { color: #92958b; cursor: default; }
+.pager span { align-self: center; color: var(--muted); }
+
 @media (max-width: 560px) {
     .site-header { padding-top: 20px; }
     .page-shell { padding-top: 4vh; }
@@ -87,4 +105,7 @@ textarea { font-family: Consolas, monospace; }
     .match-details { grid-template-columns: 1fr; gap: 4px; }
     .match-details dd { margin-bottom: 10px; }
     .site-header nav { flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+    .grid-panel { padding: 16px; }
+    .grid-heading { align-items: start; flex-direction: column; gap: 4px; }
+    .grid-heading .result-count { text-align: left; }
 }

@@ -7,6 +7,11 @@ string connectionString = builder.Configuration.GetConnectionString("QuinielaDb"
     ?? builder.Configuration.GetConnectionString("MySecretPostgresConnection")
     ?? throw new InvalidOperationException(
         "Set the PostgreSQL connection string using ConnectionStrings:QuinielaDb or ConnectionStrings:MySecretPostgresConnection.");
+string apiBaseAddress = builder.Configuration["QuinielaApi:BaseUrl"] ?? "http://localhost:5124/";
+if (!Uri.TryCreate(apiBaseAddress, UriKind.Absolute, out Uri? apiBaseUri))
+{
+    throw new InvalidOperationException("Set QuinielaApi:BaseUrl to an absolute API URL.");
+}
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<QuinielaDbContext>(options => options.UseNpgsql(
@@ -17,6 +22,7 @@ builder.Services.AddDbContext<QuinielaDbContext>(options => options.UseNpgsql(
         .MapEnum<SportType>("sport_type", "user_08")));
 builder.Services.AddScoped<QuinielaScorer>();
 builder.Services.AddScoped<MatchCrudService>();
+builder.Services.AddHttpClient("QuinielaApi", client => client.BaseAddress = apiBaseUri);
 
 WebApplication app = builder.Build();
 

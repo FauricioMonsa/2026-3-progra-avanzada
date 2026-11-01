@@ -7,7 +7,18 @@ namespace Quiniela.Api.Controllers;
 [Route("api/forecasts")]
 public sealed class ForecastsController : CrudController<Forecast>
 {
-    public ForecastsController(ForecastCrudService crudService) : base(crudService) { }
+    private readonly ForecastCrudService forecastService;
+
+    public ForecastsController(ForecastCrudService crudService) : base(crudService)
+    {
+        forecastService = crudService;
+    }
+
+    [HttpGet("by-matches")]
+    public Task<List<Forecast>> GetByMatches(
+        [FromQuery] int[] matchIds,
+        CancellationToken cancellationToken) =>
+        forecastService.GetForMatchesAsync(matchIds, cancellationToken);
 
     [HttpGet("{forecastId:int}")]
     public Task<ActionResult<Forecast>> GetById(int forecastId, CancellationToken cancellationToken) =>

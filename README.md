@@ -63,7 +63,7 @@ dotnet user-secrets set "ConnectionStrings:QuinielaDb" "Host=localhost;Port=5432
 dotnet run --project .\Quiniela.Mvc
 ```
 
-La aplicación MVC abre en `http://localhost:5205`. El listado `/Matches` muestra partidos paginados, filtros por torneo o equipo, pronósticos por partido, y acciones para consultar JSON, insertar, editar, eliminar y ver detalles. Editar avanza un partido programado a en vivo o uno en vivo a finalizado, de acuerdo con las reglas de la base de datos. Para calcular puntos, abre `/Quiniela/WebUnitTesting`.
+La aplicación MVC abre en `http://localhost:5205`. El listado `/Matches` conserva el controlador MVC existente; `/MatchesApi` ofrece las mismas vistas y acciones consumiendo la API clásica, configurable con `QuinielaApi:BaseUrl` (por defecto `http://localhost:5124/`). `/MatchesJs` presenta un master/detail con una cuadrícula de partidos arriba y una cuadrícula de pronósticos abajo; la selección, los filtros y la paginación se actualizan con JavaScript `fetch` a endpoints MVC que consumen la misma API. Para calcular puntos, abre `/Quiniela/WebUnitTesting`.
 
 ### APIs REST
 
@@ -106,7 +106,7 @@ Los recursos exponen operaciones `GET` paginadas, `GET` por clave, `POST`, `PUT`
 - `/api/tournament-participants` (la clave compuesta se indica como `/{tournamentId}/{teamId}`)
 - `/api/users`
 
-Los listados aceptan `pageNumber` y `pageSize`, con valores predeterminados `1` y `10`. Las consultas personalizadas están disponibles en `GET /api/matches/by-team/{teamId}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` y `GET /api/matches/by-tournament/{tournamentId}`; ambas aceptan los mismos parámetros de paginación.
+Los listados aceptan `pageNumber` y `pageSize`, con valores predeterminados `1` y `10`. Las consultas personalizadas están disponibles en `GET /api/matches/by-team/{teamId}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` y `GET /api/matches/by-tournament/{tournamentId}`; ambas aceptan los mismos parámetros de paginación. La interfaz `/MatchesApi` usa además `GET /api/matches/details` (con filtros opcionales `tournamentId` o `teamId`, paginación y el encabezado `X-Total-Count`), `GET /api/matches/details/{matchId}`, `GET /api/matches/stats/{matchId}` y `GET /api/forecasts/by-matches?matchIds=...`. La eliminación de partidos también elimina pronósticos y participantes relacionados.
 
 ## Puntuación
 
