@@ -36,4 +36,10 @@ public sealed class ForecastCrudService : CrudService<Forecast>
             })
             .ToListAsync(cancellationToken);
     }
+
+    public Task<int?> GetMatchIdAsync(int forecastId, CancellationToken cancellationToken = default) =>
+        context.Forecasts.AsNoTracking()
+            .Where(forecast => forecast.ForecastId == forecastId)
+            .Select(forecast => (int?)forecast.MatchId)
+            .SingleOrDefaultAsync(cancellationToken);
 }

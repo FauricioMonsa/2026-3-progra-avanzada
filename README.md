@@ -10,6 +10,7 @@ Aplicación desarrollada con .NET 10 y Entity Framework Core que gestiona pronó
   - `QuinielaScorer`: cálculo de puntos de pronósticos deportivos.
   - Servicios CRUD (`CrudService<T>`): operaciones genéricas de inserción, actualización, eliminación y consulta por llave primaria para las entidades del modelo.
   - Consultas de partidos (`MatchQueryService`, `IMatchQueryService`): consultas especializadas de partidos ordenadas cronológicamente ascendente.
+  - Consulta de pronósticos (`ForecastQueryService`): conteos por fecha/hora local del partido y resultado pronosticado.
 - `Quiniela.AppConsole`: aplicación de consola para interactuar con `QuinielaScorer`.
 - `Quiniela.MinimalApi`: API REST con Minimal APIs (`MapGet`, `MapPost`, `MapPut`, `MapDelete`).
 - `Quiniela.Api`: API REST clásica con controladores y acciones MVC.
@@ -65,6 +66,8 @@ dotnet run --project .\Quiniela.Mvc
 
 La aplicación MVC abre en `http://localhost:5205`. El listado `/Matches` conserva el controlador MVC existente; `/MatchesApi` ofrece las mismas vistas y acciones consumiendo la API clásica, configurable con `QuinielaApi:BaseUrl` (por defecto `http://localhost:5124/`). `/MatchesJs` presenta un master/detail con una cuadrícula de partidos arriba y una cuadrícula de pronósticos abajo; la selección, los filtros y la paginación se actualizan con JavaScript `fetch` a endpoints MVC que consumen la misma API. Para calcular puntos, abre `/Quiniela/WebUnitTesting`.
 
+La página `/ForecastsChart` permite filtrar por deporte, equipo, partido y fecha. Presenta tres gráficos horarios (triunfos locales, empates y triunfos visitantes); los pronósticos se agrupan en la zona horaria del partido. Para la fecha actual, la página recibe invalidaciones SignalR cuando se crea, modifica o elimina un pronóstico mediante la API clásica y vuelve a cargar los conteos; las fechas históricas permanecen estáticas. Chart.js y el cliente JavaScript de SignalR se cargan desde jsDelivr.
+
 ### APIs REST
 
 Ambas implementaciones exponen los mismos recursos y contratos. La conexión se guarda en User Secrets, no en archivos versionados. Ajusta la contraseña `postgres` si tu instancia local usa otra:
@@ -107,6 +110,8 @@ Los recursos exponen operaciones `GET` paginadas, `GET` por clave, `POST`, `PUT`
 - `/api/users`
 
 Los listados aceptan `pageNumber` y `pageSize`, con valores predeterminados `1` y `10`. Las consultas personalizadas están disponibles en `GET /api/matches/by-team/{teamId}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` y `GET /api/matches/by-tournament/{tournamentId}`; ambas aceptan los mismos parámetros de paginación. La interfaz `/MatchesApi` usa además `GET /api/matches/details` (con filtros opcionales `tournamentId` o `teamId`, paginación y el encabezado `X-Total-Count`), `GET /api/matches/details/{matchId}`, `GET /api/matches/stats/{matchId}` y `GET /api/forecasts/by-matches?matchIds=...`. La eliminación de partidos también elimina pronósticos y participantes relacionados.
+
+La consulta `GET /api/forecast-queries/by-match?matchId=...` retorna una fila por grupo con `date` (`yyyy/MM/dd`), `hour` (`00`–`23`), `resultType` (`1` local, `0` empate, `-1` visitante) y `count`. SignalR publica `ForecastsChanged` en `/hubs/forecasts`; los clientes se suscriben a un partido con `JoinMatch(matchId)`. Para despliegues donde MVC y la API tienen distintos orígenes, configura `QuinielaMvc:AllowedOrigins` en la API con el origen de MVC (por ejemplo, `http://localhost:5205`).
 
 ## Puntuación
 

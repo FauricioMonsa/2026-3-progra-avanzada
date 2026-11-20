@@ -346,4 +346,104 @@ public class MatchQueryTests
         await Assert.ThrowsAsync<ArgumentException>(() =>
             queryService.GetMatchDetailsPageAsync(1, 10, 1, 10));
     }
+
+    [Fact]
+    public async Task ForecastQuery_GroupsResultsByMatchLocalDateHourAndOutcome()
+    {
+        using QuinielaDbContext context = CreateContext();
+        await SeedSampleDataAsync(context);
+
+        Match match = await context.Matches.SingleAsync(match => match.MatchId == 101);
+        match.TimeZone = "America/Costa_Rica";
+        context.Users.AddRange(Enumerable.Range(1, 4).Select(userId => new User
+        {
+            UserId = userId,
+            Username = $"forecast-user-{userId}",
+            Email = $"forecast-user-{userId}@example.com",
+            DisplayName = $"Forecast User {userId}"
+        }));
+        context.Forecasts.AddRange(
+            new Forecast
+            {
+                ForecastId = 1,
+                MatchId = 101,
+                UserId = 1,
+                HomeScore = 2,
+                AwayScore = 1,
+                SubmittedAt = new DateTime(2026, 3, 10, 18, 15, 0, DateTimeKind.Utc)
+            },
+            new Forecast
+            {
+                ForecastId = 2,
+                MatchId = 101,
+                UserId = 2,
+                HomeScore = 0,
+                AwayScore = 0,
+                SubmittedAt = new DateTime(2026, 3, 10, 18, 25, 0, DateTimeKind.Utc)
+            },
+            new Forecast
+            {
+                ForecastId = 3,
+                MatchId = 101,
+                UserId = 3,
+                HomeScore = 0,
+                AwayScore = 1,
+                SubmittedAt = new DateTime(2026, 3, 10, 18, 35, 0, DateTimeKind.Utc)
+            },
+            new Forecast
+            {
+                ForecastId = 4,
+                MatchId = 101,
+                UserId = 4,
+                HomeScore = 3,
+                AwayScore = 1,
+                SubmittedAt = new DateTime(2026, 3, 11, 4, 15, 0, DateTimeKind.Utc)
+            });
+        await context.SaveChangesAsync();
+
+        List<ForecastCountByHour> results =
+            await new ForecastQueryService(context).GetCountsByHourAsync(101);
+
+        Assert.Collection(
+            results,
+            bucket =>
+            {
+                Assert.Equal("2026/03/10", bucket.Date);
+                Assert.Equal("12", bucket.Hour);
+                Assert.Equal(-1, bucket.ResultType);
+                Assert.Equal(1, bucket.Count);
+            },
+            bucket =>
+            {
+                Assert.Equal("2026/03/10", bucket.Date);
+                Assert.Equal("12", bucket.Hour);
+                Assert.Equal(0, bucket.ResultType);
+                Assert.Equal(1, bucket.Count);
+            },
+            bucket =>
+            {
+                Assert.Equal("2026/03/10", bucket.Date);
+                Assert.Equal("12", bucket.Hour);
+                Assert.Equal(1, bucket.ResultType);
+                Assert.Equal(1, bucket.Count);
+            },
+            bucket =>
+            {
+                Assert.Equal("2026/03/10", bucket.Date);
+                Assert.Equal("22", bucket.Hour);
+                Assert.Equal(1, bucket.ResultType);
+                Assert.Equal(1, bucket.Count);
+            });
+    }
+
+    [Fact]
+    public async Task ForecastQuery_ReturnsEmptyList_WhenMatchDoesNotExist()
+    {
+        using QuinielaDbContext context = CreateContext();
+
+        List<ForecastCountByHour> results =
+            await new ForecastQueryService(context).GetCountsByHourAsync(999);
+
+        Assert.Empty(results);
+    }
 }

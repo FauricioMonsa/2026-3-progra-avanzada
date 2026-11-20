@@ -95,6 +95,11 @@ textarea { font-family: Consolas, monospace; }
 .text-button:disabled { color: #92958b; cursor: default; }
 .pager span { align-self: center; color: var(--muted); }
 
+.chart-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.forecast-chart-panel { min-height: 270px; margin: 0 0 20px; }
+.forecast-chart-panel h2 { margin: 0 0 12px; font-size: 1.5rem; }
+.forecast-chart-panel canvas { width: 100%; max-height: 220px; }
+
 @media (max-width: 560px) {
     .site-header { padding-top: 20px; }
     .page-shell { padding-top: 4vh; }

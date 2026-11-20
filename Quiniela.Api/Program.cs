@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Quiniela.Api.Hubs;
 using Quiniela.BusinessLogic;
 using Quiniela.Model;
 
@@ -21,12 +22,23 @@ builder.Services.AddScoped<TeamCrudService>();
 builder.Services.AddScoped<TournamentCrudService>();
 builder.Services.AddScoped<TournamentTeamCrudService>();
 builder.Services.AddScoped<UserCrudService>();
+builder.Services.AddScoped<IForecastQueryService, ForecastQueryService>();
+string[] mvcOrigins = builder.Configuration.GetSection("QuinielaMvc:AllowedOrigins").Get<string[]>()
+	?? ["http://localhost:5205"];
+builder.Services.AddCors(options => options.AddPolicy("QuinielaMvc", policy => policy
+	.WithOrigins(mvcOrigins)
+	.AllowAnyHeader()
+	.AllowAnyMethod()
+	.AllowCredentials()));
+builder.Services.AddSignalR();
 builder.Services.AddControllers()
 	.AddJsonOptions(options =>
 		options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 var app = builder.Build();
 
+app.UseCors("QuinielaMvc");
 app.MapControllers();
+app.MapHub<ForecastsHub>("/hubs/forecasts").RequireCors("QuinielaMvc");
 
 app.Run();

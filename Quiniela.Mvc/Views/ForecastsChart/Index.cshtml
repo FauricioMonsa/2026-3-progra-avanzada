@@ -1,0 +1,70 @@
+@model ForecastsChartViewModel
+@{
+    ViewData["Title"] = "Forecast charts";
+}
+
+<main class="forecasts-chart"
+      data-teams-url="@Url.Action("Teams")"
+      data-matches-url="@Url.Action("Matches")"
+      data-chart-data-url="@Url.Action("ChartData")"
+      data-hub-url="@Model.HubUrl">
+    <p class="eyebrow">Forecast trends</p>
+    <h1>Forecast charts</h1>
+    <p class="intro">Compare hourly home-win, tie, and away-win forecasts for a selected match.</p>
+
+    <section class="grid-panel" aria-label="Chart filters">
+        <div class="filter-grid">
+            <div>
+                <label for="sport-filter">Sport</label>
+                <select id="sport-filter">
+                    <option value="">Choose a sport</option>
+                    @foreach (SelectListItem sport in Model.SportOptions)
+                    {
+                        <option value="@sport.Value">@sport.Text</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label for="team-filter">Team</label>
+                <select id="team-filter" disabled>
+                    <option value="">Choose a sport first</option>
+                </select>
+            </div>
+            <div>
+                <label for="match-filter">Match</label>
+                <select id="match-filter" disabled>
+                    <option value="">Choose a team first</option>
+                </select>
+            </div>
+            <div>
+                <label for="date-filter">Forecast date</label>
+                <input id="date-filter" type="date" disabled />
+            </div>
+        </div>
+        <p id="chart-message" class="grid-message" role="status" aria-live="polite">
+            Choose a sport, team, and match to view forecast counts.
+        </p>
+        <p id="realtime-message" class="form-hint" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="chart-grid" aria-label="Hourly forecast counts">
+        <article class="grid-panel forecast-chart-panel">
+            <h2>Home wins</h2>
+            <canvas id="home-wins-chart" role="img" aria-label="Hourly home-win forecast counts"></canvas>
+        </article>
+        <article class="grid-panel forecast-chart-panel">
+            <h2>Ties</h2>
+            <canvas id="ties-chart" role="img" aria-label="Hourly tie forecast counts"></canvas>
+        </article>
+        <article class="grid-panel forecast-chart-panel">
+            <h2>Away wins</h2>
+            <canvas id="away-wins-chart" role="img" aria-label="Hourly away-win forecast counts"></canvas>
+        </article>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@10.0.0/dist/browser/signalr.min.js"></script>
+    <script src="~/js/forecasts-chart.js" asp-append-version="true"></script>
+}
