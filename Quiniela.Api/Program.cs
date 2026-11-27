@@ -24,7 +24,7 @@ builder.Services.AddScoped<TournamentTeamCrudService>();
 builder.Services.AddScoped<UserCrudService>();
 builder.Services.AddScoped<IForecastQueryService, ForecastQueryService>();
 string[] mvcOrigins = builder.Configuration.GetSection("QuinielaMvc:AllowedOrigins").Get<string[]>()
-	?? ["http://localhost:5205"];
+	?? ["https://localhost:7205"];
 builder.Services.AddCors(options => options.AddPolicy("QuinielaMvc", policy => policy
 	.WithOrigins(mvcOrigins)
 	.AllowAnyHeader()

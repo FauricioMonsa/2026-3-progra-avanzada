@@ -26,6 +26,7 @@
     let joinedMatchId = null;
     let hubStarting = false;
     let hubRetryTimer = null;
+    let refreshTimer = null;
 
     const hubConnection = new signalR.HubConnectionBuilder()
         .withUrl(root.dataset.hubUrl)
@@ -62,11 +63,13 @@
 
         dateFilter.disabled = false;
         dateFilter.value = dateInTimeZone(new Date(), selectedMatch.timeZone);
+        updateRefreshTimer();
         void changeHubMatch(previousMatchId, selectedMatch.matchId);
         void refreshCharts();
     });
 
     dateFilter.addEventListener("change", () => {
+        updateRefreshTimer();
         void refreshCharts();
     });
 
@@ -254,6 +257,7 @@
     }
 
     function clearCharts(message) {
+        stopRefreshTimer();
         if (chartRequest) {
             chartRequest.abort();
         }
@@ -350,6 +354,28 @@
         }
     }
 
+    function updateRefreshTimer() {
+        stopRefreshTimer();
+        if (!isSelectedDateToday()) {
+            return;
+        }
+
+        // Keep the chart current even when a forecast is written through an API
+        // path that does not publish the SignalR invalidation event.
+        refreshTimer = setInterval(() => {
+            if (!document.hidden && isSelectedDateToday()) {
+                void refreshCharts();
+            }
+        }, 10000);
+    }
+
+    function stopRefreshTimer() {
+        if (refreshTimer) {
+            clearInterval(refreshTimer);
+            refreshTimer = null;
+        }
+    }
+
     function isSelectedDateToday() {
         return selectedMatch
             && dateFilter.value
@@ -386,6 +412,7 @@
         }
         const previousMatchId = selectedMatch ? selectedMatch.matchId : null;
         selectedMatch = null;
+        stopRefreshTimer();
         matchFilter.disabled = true;
         setOptions(matchFilter, "Choose a team first");
         dateFilter.value = "";
